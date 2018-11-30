@@ -55,7 +55,7 @@ def transformIntoStep(arch, wspwd) {
                                                          \$VOLUMES \
                                                          --name "${env.BUILD_TAG}-${arch}" \
                                                          git.ra-doersch.de:5005/rttr/docker-precise:master -c \
-                                                        "rm -rf build && mkdir -p build && cd build && \
+                                                        "rm -rf build /workdir/installed && mkdir -p build && cd build && \
                                                         cmake .. -DCMAKE_BUILD_TYPE=\$BUILD_TYPE \$TOOLCHAIN \
                                                         -DRTTR_ENABLE_WERROR=ON -DRTTR_USE_STATIC_BOOST=ON \
                                                         \$ADDITIONAL_CMAKE_FLAGS && \
@@ -189,7 +189,6 @@ catchError() {
     milestone label: 'Publishing complete'
 
 } // catchError()
-
 node {
     step([$class: 'Mailer',
           notifyEveryUnstableBuild: true,

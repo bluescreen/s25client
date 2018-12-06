@@ -29,7 +29,7 @@ def transformIntoStep(arch, wspwd) {
                               VOLUMES="-v /srv/apache2/siedler25.org/nightly:/www \
                                   -v /srv/backup/www/s25client:/archive \
                                   "
-                              
+
                               BUILD_TYPE=RelWithDebInfo
                               if [[ "${arch}" == "apple.universal" ]]; then
                                   # Current apple compiler doesn't work with debug info and we can't extract them anyway
@@ -45,7 +45,9 @@ def transformIntoStep(arch, wspwd) {
                                   ADDITIONAL_CMAKE_FLAGS="-DRTTR_VERSION=\$(cat ../.stable-version) -DRTTR_REVISION=OFF"
                               else
                                   VOLUMES=
-                                  MAKE_TARGET=
+                                  MAKE_TARGET=install
+                                  ADDITIONAL_CMAKE_FLAGS="\${ADDITIONAL_CMAKE_FLAGS} -DCMAKE_INSTALL_PREFIX=/workdir/installed"
+                                  touch s25rttrDummy.zip
                               fi
                               docker run --rm -u jenkins -v \$(pwd):/workdir \
                                                          -v ~/.ssh:/home/jenkins/.ssh \
@@ -53,9 +55,9 @@ def transformIntoStep(arch, wspwd) {
                                                          \$VOLUMES \
                                                          --name "${env.BUILD_TAG}-${arch}" \
                                                          git.ra-doersch.de:5005/rttr/docker-precise:master -c \
-                                                        "mkdir -p build && cd build && \
+                                                        "rm -rf build && mkdir -p build && cd build && \
                                                         cmake .. -DCMAKE_BUILD_TYPE=\$BUILD_TYPE \$TOOLCHAIN \
-                                                        -DRTTR_ENABLE_WERROR=ON -DRTTR_USE_STATIC_BOOST=ON -DRTTR_EXTRA_BINDIR=libexec/s25rttr \
+                                                        -DRTTR_ENABLE_WERROR=ON -DRTTR_USE_STATIC_BOOST=ON \
                                                         \$ADDITIONAL_CMAKE_FLAGS && \
                                                         make \$MAKE_TARGET"
                               EXIT=\$?
